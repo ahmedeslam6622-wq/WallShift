@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WallShift</string>
+    <string name="permission_rationale">WallShift needs photo access to load your wallpaper images.</string>
+    <string name="notification_rotation_title">Wallpaper rotated</string>
+    <string name="notification_applying">Applying wallpaper…</string>
+</resources>

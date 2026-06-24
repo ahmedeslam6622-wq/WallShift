@@ -1,0 +1,24 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# APKs & keystores (don't commit signed keystores)
+*.apk
+*.aab
+*.jks
+*.keystore
+release.keystore
+
+# Gradle wrapper jar (can be large; GitHub will have the script)
+gradle/wrapper/gradle-wrapper.jar
+
+# Font files (installed by CI)
+app/src/main/res/font/*.ttf
+app/src/main/res/font/*.otf
