@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 }
+implementation("androidx.appcompat:appcompat:1.7.0")
 
 android {
     namespace = "com.vynik.wallshift"
