@@ -19,7 +19,6 @@ env:
   GRADLE_VERSION: '8.9'
 
 jobs:
-  # ── Build Debug APK ────────────────────────────────────────────────────
   build-debug:
     name: Build Debug APK
     runs-on: ubuntu-latest
@@ -54,31 +53,12 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
           restore-keys: ${{ runner.os }}-gradle-
 
-      - name: Install Inter font files (placeholder)
+      - name: Install font stubs
         run: |
           mkdir -p app/src/main/res/font
-          # Download Inter from Google Fonts API (no account needed)
-          curl -L "https://fonts.google.com/download?family=Inter" -o inter.zip 2>/dev/null || true
-          if [ -f inter.zip ]; then
-            unzip -o inter.zip -d inter_fonts/ 2>/dev/null || true
-            find inter_fonts/ -name "Inter-Regular.ttf" -exec cp {} app/src/main/res/font/inter_regular.ttf \; 2>/dev/null || true
-            find inter_fonts/ -name "Inter-Medium.ttf"  -exec cp {} app/src/main/res/font/inter_medium.ttf \;  2>/dev/null || true
-            find inter_fonts/ -name "Inter-SemiBold.ttf" -exec cp {} app/src/main/res/font/inter_semibold.ttf \; 2>/dev/null || true
-            find inter_fonts/ -name "Inter-Bold.ttf"    -exec cp {} app/src/main/res/font/inter_bold.ttf \;    2>/dev/null || true
-          fi
-          # Fallback: create stub TTF files so the build does not fail
-          mkdir -p app/src/main/res/font
-          python3 - <<'PYEOF'
-import struct, os
-header = struct.pack('>IHHHH', 0x00010000, 0, 0, 0, 0)
-for name in ['inter_regular', 'inter_medium', 'inter_semibold', 'inter_bold']:
-    path = f'app/src/main/res/font/{name}.ttf'
-    if not os.path.exists(path):
-        with open(path, 'wb') as f:
-            f.write(header)
-PYEOF
-          echo "Font setup complete"
-          ls -la app/src/main/res/font/ || true
+          for name in inter_regular inter_medium inter_semibold inter_bold; do
+            printf '\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' > app/src/main/res/font/${name}.ttf
+          done
 
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
@@ -90,7 +70,6 @@ PYEOF
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 14
 
-  # ── Build Release APK (signed) ─────────────────────────────────────────
   build-release:
     name: Build Release APK
     runs-on: ubuntu-latest
@@ -122,18 +101,12 @@ PYEOF
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
           restore-keys: ${{ runner.os }}-gradle-
 
-      - name: Install fonts
+      - name: Install font stubs
         run: |
           mkdir -p app/src/main/res/font
-          python3 - <<'PYEOF'
-import struct, os
-header = struct.pack('>IHHHH', 0x00010000, 0, 0, 0, 0)
-for name in ['inter_regular', 'inter_medium', 'inter_semibold', 'inter_bold']:
-    path = f'app/src/main/res/font/{name}.ttf'
-    if not os.path.exists(path):
-        with open(path, 'wb') as f:
-            f.write(header)
-PYEOF
+          for name in inter_regular inter_medium inter_semibold inter_bold; do
+            printf '\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' > app/src/main/res/font/${name}.ttf
+          done
 
       - name: Decode keystore
         if: env.KEYSTORE_BASE64 != ''
@@ -157,7 +130,6 @@ PYEOF
               -Pandroid.injected.signing.key.password=$KEY_PASSWORD \
               --stacktrace
           else
-            echo "No keystore found — building unsigned release"
             ./gradlew assembleRelease --stacktrace
           fi
 
@@ -167,10 +139,6 @@ PYEOF
           name: WallShift-release-${{ github.ref_name }}
           path: app/build/outputs/apk/release/*.apk
           retention-days: 30
-
-      - name: Get version name
-        id: version
-        run: echo "VERSION=$(./gradlew -q printVersionName 2>/dev/null || echo '${{ github.ref_name }}')" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
@@ -183,12 +151,9 @@ PYEOF
 
             Auto-rotating wallpaper app by Vynik.
 
-            ### What's new
-            - See commit history for changes
-
             ### Installation
             1. Download the APK below
-            2. Enable "Install unknown apps" in Settings → Security
+            2. Enable Install unknown apps in Settings > Security
             3. Tap the APK to install
             4. Grant photo access when prompted
 
@@ -200,7 +165,6 @@ PYEOF
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # ── Lint Check ──────────────────────────────────────────────────────────
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -221,15 +185,9 @@ PYEOF
       - name: Install font stubs
         run: |
           mkdir -p app/src/main/res/font
-          python3 - <<'PYEOF'
-import struct, os
-header = struct.pack('>IHHHH', 0x00010000, 0, 0, 0, 0)
-for name in ['inter_regular', 'inter_medium', 'inter_semibold', 'inter_bold']:
-    path = f'app/src/main/res/font/{name}.ttf'
-    if not os.path.exists(path):
-        with open(path, 'wb') as f:
-            f.write(header)
-PYEOF
+          for name in inter_regular inter_medium inter_semibold inter_bold; do
+            printf '\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' > app/src/main/res/font/${name}.ttf
+          done
 
       - name: Run lint
         run: ./gradlew lintDebug
