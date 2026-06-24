@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 }
-implementation("androidx.appcompat:appcompat:1.7.0")
 
 android {
     namespace = "com.vynik.wallshift"
@@ -68,6 +67,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.appcompat)
 
     // Hilt DI
     implementation(libs.hilt.android)
