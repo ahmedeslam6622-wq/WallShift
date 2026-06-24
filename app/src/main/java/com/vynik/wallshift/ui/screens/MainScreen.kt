@@ -599,7 +599,7 @@ private fun ImageCard(
                 // Apply this
                 SmallActionButton(
                     text = "Apply",
-                    icon = Icons.Filled.WallpaperSharp,
+                    icon = Icons.Filled.Wallpaper,
                     color = AccentPrimary,
                     onClick = onApply,
                     modifier = Modifier.weight(1f)
