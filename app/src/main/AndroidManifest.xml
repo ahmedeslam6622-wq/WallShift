@@ -67,16 +67,18 @@
             android:foregroundServiceType="systemExempted" />
 
         <!-- WorkManager initializer -->
-        <provider
-            android:name="androidx.startup.InitializationProvider"
-            android:authorities="${applicationId}.androidx-startup"
-            android:exported="false"
-            tools:node="merge">
-            <meta-data
-                android:name="androidx.work.WorkManagerInitializer"
-                android:value="androidx.startup" />
-        </provider>
-
+       <!-- Disable default WorkManager initializer (using on-demand init via Configuration.Provider) -->
+<!-- Disable default WorkManager initializer (using on-demand init via Configuration.Provider) -->
+<provider
+    android:name="androidx.startup.InitializationProvider"
+    android:authorities="${applicationId}.androidx-startup"
+    android:exported="false"
+    tools:node="merge">
+    <meta-data
+        android:name="androidx.work.WorkManagerInitializer"
+        android:value="androidx.startup"
+        tools:node="remove" />
+</provider>
     </application>
 
 </manifest>
