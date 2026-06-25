@@ -112,30 +112,21 @@ jobs:
             printf '\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' > app/src/main/res/font/${name}.ttf
           done
 
-      - name: Decode keystore
-        if: env.KEYSTORE_BASE64 != ''
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      - name: Generate keystore and build release APK
         run: |
-          echo "$KEYSTORE_BASE64" | tr -d '\n\r ' | base64 -d > app/release.keystore
-
-      - name: Build release APK
-        env:
-          KEYSTORE_PATH: ${{ github.workspace }}/app/release.keystore
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
-        run: |
-          if [ -f app/release.keystore ]; then
-            ./gradlew assembleRelease \
-              -Pandroid.injected.signing.store.file=$KEYSTORE_PATH \
-              -Pandroid.injected.signing.store.password=$STORE_PASSWORD \
-              -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
-              -Pandroid.injected.signing.key.password=$KEY_PASSWORD \
-              --stacktrace
-          else
-            ./gradlew assembleRelease --stacktrace
-          fi
+          keytool -genkeypair -v \
+            -keystore app/release.keystore \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -alias wallshift \
+            -storepass wallshift123 \
+            -keypass wallshift123 \
+            -dname "CN=WallShift, O=Vynik, C=US"
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=$(pwd)/app/release.keystore \
+            -Pandroid.injected.signing.store.password=wallshift123 \
+            -Pandroid.injected.signing.key.alias=wallshift \
+            -Pandroid.injected.signing.key.password=wallshift123 \
+            --stacktrace
 
       - name: Upload release APK artifact
         uses: actions/upload-artifact@v4
